@@ -2,6 +2,7 @@ import json
 
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
+from django.core.paginator import Paginator
 from django.db import IntegrityError
 from django.http import HttpResponseRedirect, JsonResponse, HttpResponse
 from django.shortcuts import render
@@ -16,11 +17,15 @@ def index(request):
     user = request.user
     posts = Post.objects.order_by('-time_stamp')
     form = PostForm()
+    paginator = Paginator(posts, 10)
 
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
     return render(request, "network/index.html", context={
         'form': form,
         'posts': posts,
-        'user': user
+        'user': user,
+        'page_obj': page_obj
     })
 
 
@@ -128,7 +133,6 @@ def profile(request, u_name):
 def following(request):
     user = request.user
     followings = Follower.objects.filter(follower=user)
-    # return HttpResponseRedirect(reverse('index'))
     posts = Post.objects.filter(user=None)
     for follow in followings:
         posts |= Post.objects.filter(user=follow.following)
