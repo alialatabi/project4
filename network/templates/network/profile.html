@@ -1,0 +1,54 @@
+{% extends "network/layout.html" %}
+{% load static %}
+
+{% block body %}
+    <div class="container col-4 " style="margin-top: 20px">
+        <div class="user text-center">
+            <div class="profile" style="margin-top: 10px"><img src="https://i.imgur.com/JgYD2nQ.jpg"
+                                                               class="rounded-circle" width="150"></div>
+        </div>
+        <div class="mt-5 text-center">
+            <h4 class="mb-0">{{ profile_u.username.capitalize }}</h4>
+            {% if user.id != profile_u.id %}
+                <form action="{% url 'profile' profile_u.username %}" method="post">
+                {% csrf_token %}
+                    <input type="submit" class="btn btn-outline-primary btn-sm follow" style="margin-top: 10px;" value="Follow"/>
+                </form>
+
+            {% endif %}
+            <div class="d-flex justify-content-between align-items-center mt-4 px-4" style="margin-bottom: 15px">
+                <div class="stats" style="margin-left: -15px">
+                    <h6 class="mb-0">Followers</h6> <span>{{ followers }}</span>
+                </div>
+                <div class="stats" style="margin-left: -10px">
+                    <h6 class="mb-0">Following</h6> <span>{{ followings }}</span>
+                </div>
+                <div class="stats">
+                    <h6 class="mb-0">Ranks</h6> <span>129</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+
+    {% for post in posts %}
+        <div class="container col-4 card" style="padding: 10px; margin-top: 10px">
+            <div class="mb-1 text-primary float-left">
+                {{ post.user.username }}
+                <div class="mb-1 text-muted float-right">{{ post.time_stamp }}</div>
+            </div>
+            <div class="mb-2 card-text float-left">{{ post.post }}</div>
+            <div>
+                <input type="button" data-id="{{ post.id }}" class="mb-1 card-text float-left" id="like_{{ post.id }}"
+                       value="🤍"
+                       style="font-size: 24px; width:fit-content; border: none; background-color: transparent"/>
+                <div class="mb-1 text-muted float-right" id="like_count" style="margin-top: 15px">{{ post.like_count }}
+                    Likes
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+
+{% endblock %}
+
+
