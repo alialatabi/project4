@@ -2,6 +2,7 @@ import json
 
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
+from django.core.paginator import Paginator
 from django.db import IntegrityError
 from django.http import HttpResponseRedirect, JsonResponse, HttpResponse
 from django.shortcuts import render
@@ -16,11 +17,14 @@ def index(request):
     user = request.user
     posts = Post.objects.order_by('-time_stamp')
     form = PostForm()
-
+    paginator = Paginator(posts, 10)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
     return render(request, "network/index.html", context={
         'form': form,
         'posts': posts,
-        'user': user
+        'user': user,
+        'page_obj': page_obj
     })
 
 
@@ -112,28 +116,36 @@ def profile(request, u_name):
     user = request.user
     if request.method == 'POST':
         Follower.objects.create(follower=user, following=profile_u)
+
     posts = Post.objects.filter(user=profile_u).order_by('-time_stamp')
     followers = Follower.objects.filter(following=profile_u).count()
     followings = Follower.objects.filter(follower=profile_u).count()
-
+    paginator = Paginator(posts, 10)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
     return render(request, "network/profile.html", context={
         'posts': posts,
         'user': user,
         'profile_u': profile_u,
         'followers': followers,
         'followings': followings,
+        'posts_count': posts.count(),
+        'page_obj': page_obj
     })
 
 
 def following(request):
     user = request.user
     followings = Follower.objects.filter(follower=user)
-    # return HttpResponseRedirect(reverse('index'))
     posts = Post.objects.filter(user=None)
     for follow in followings:
         posts |= Post.objects.filter(user=follow.following)
     posts = posts.order_by('-time_stamp')
+    paginator = Paginator(posts, 10)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
     return render(request, "network/following.html", context={
         'posts': posts,
         'user': user,
+        'page_obj': page_obj
     })

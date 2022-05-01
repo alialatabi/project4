@@ -11,8 +11,9 @@
             <h4 class="mb-0">{{ profile_u.username.capitalize }}</h4>
             {% if user.id != profile_u.id %}
                 <form action="{% url 'profile' profile_u.username %}" method="post">
-                {% csrf_token %}
-                    <input type="submit" class="btn btn-outline-primary btn-sm follow" style="margin-top: 10px;" value="Follow"/>
+                    {% csrf_token %}
+                    <input type="submit" class="btn btn-outline-primary btn-sm follow" style="margin-top: 10px;"
+                           value="Follow"/>
                 </form>
 
             {% endif %}
@@ -24,14 +25,13 @@
                     <h6 class="mb-0">Following</h6> <span>{{ followings }}</span>
                 </div>
                 <div class="stats">
-                    <h6 class="mb-0">Ranks</h6> <span>129</span>
+                    <h6 class="mb-0">Posts</h6> <span>{{ posts_count }}</span>
                 </div>
             </div>
         </div>
     </div>
-    </div>
 
-    {% for post in posts %}
+    {% for post in page_obj.object_list %}
         <div class="container col-4 card" style="padding: 10px; margin-top: 10px">
             <div class="mb-1 text-primary float-left">
                 {{ post.user.username }}
@@ -48,6 +48,23 @@
             </div>
         </div>
     {% endfor %}
+    <div class="pagination container text-center">
+    <span class="step-links text-center container" style="margin-bottom: 20px; margin-top: 20px;">
+        {% if page_obj.has_previous %}
+            <a href="?page=1">&laquo; first	&nbsp;	&nbsp;</a>
+            <a href="?page={{ page_obj.previous_page_number }}">previous</a>
+        {% endif %}
+
+        <span class="current">
+            Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.
+        </span>
+
+        {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}">next 	&nbsp;	&nbsp;</a>
+            <a href="?page={{ page_obj.paginator.num_pages }}">last &raquo;</a>
+        {% endif %}
+    </span>
+    </div>
 
 {% endblock %}
 
