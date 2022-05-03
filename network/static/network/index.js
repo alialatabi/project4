@@ -28,36 +28,31 @@ function edit(id) {
 }
 
 function like(id) {
-    user = document.querySelector(`#like_${id}`).dataset.user
-    console.log('like ' + user)
-    // fetch('/like/' + parseInt(post), {
-    //             method: 'POST',
-    //             body: JSON.stringify({
-    //                 post: post,
-    //                 user: user,
-    //             })
-    //         }).then(r => 'liked')
-}
+    btn = document.querySelector(`#like_${id}`)
+    counter = document.querySelector(`#like_count_${id}`)
+    if (btn.value === '🤍') {
+        fetch(`/like/${id}`, {
+            method: 'POST',
+            body: JSON.stringify({
+                add: true
+            })
+        })
 
-// function like(event) {
-//     document.querySelectorAll('[id^="like_"]').forEach(a => {
-//         a.onclick = function () {
-//             let post = this.dataset.id;
-//             let user = this.dataset.user;
-//             if (this.value === '🤍') {
-//                 this.value = '❤'
-//             } else {
-//                 this.value = '🤍'
-//             }
-//             fetch('/like/' + parseInt(post), {
-//                 method: 'POST',
-//                 body: JSON.stringify({
-//                     post: post,
-//                     user: user,
-//                 })
-//             }).then(r => 'liked')
-//         }
-//
-//     })
-//
-// }
+        btn.value = '❤'
+    } else if (btn.value === '❤'){
+        fetch(`/like/${id}`, {
+            method: 'POST',
+            body: JSON.stringify({
+                add: false
+            })
+        })
+        btn.value = '🤍'
+    }
+
+    fetch(`/like/${id}`)
+        .then(response => response.json())
+        .then(post => {
+            counter.innerHTML = post.like_count + ' Likes';
+        });
+
+}

@@ -16,6 +16,7 @@ from .models import *
 def index(request):
     user = request.user
     posts = Post.objects.order_by('-time_stamp')
+    likes = Like.objects.filter().values()
     form = PostForm()
     paginator = Paginator(posts, 10)
     page_number = request.GET.get('page')
@@ -24,7 +25,8 @@ def index(request):
         'form': form,
         'posts': posts,
         'user': user,
-        'page_obj': page_obj
+        'page_obj': page_obj,
+        'likes': likes
     })
 
 
@@ -135,7 +137,7 @@ def following(request):
 
 @csrf_exempt
 @login_required(login_url=login_view)
-def edit(request,p_id):
+def edit(request, p_id):
     post = Post.objects.get(id=p_id)
     if request.method == "PUT":
         data = json.loads(request.body)
@@ -145,20 +147,22 @@ def edit(request,p_id):
         return HttpResponse(status=204)
 
 
-# @csrf_exempt
-# def like(request, p_id):
-#     if request.method == "GET":
-#         return HttpResponseRedirect(reverse("index"))
-#
-#     if request.method == "POST":
-#         data = json.loads(request.body)
-#         post_id = data.get('post')
-#         user_id = data.get('user')
-#         like_filter = Like.objects.filter(post=post_id, user=user_id)
-#         if like_filter is not None:
-#             like_filter.delete()
-#             print('deleted')
-#         else:
-#             Like.objects.create(post=post_id, user=user_id)
-#             print('added')
-#         return HttpResponse(status=204)
+@csrf_exempt
+@login_required(login_url=login_view)
+def like(request, p_id):
+    post = Post.objects.get(id=p_id)
+
+    if request.method == "GET":
+        return JsonResponse(post.serialize())
+
+    if request.method == "POST":
+        data = json.loads(request.body)
+        user = request.user
+        if data.get('add'):
+            Like.objects.create(post=post, user=user)
+            post.like_count = Like.objects.filter(post=post).count()
+        else:
+            Like.objects.filter(post=post, user=user).first().delete()
+            post.like_count = Like.objects.filter(post=post).count()
+        post.save()
+        return HttpResponse(status=204)

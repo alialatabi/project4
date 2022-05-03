@@ -16,6 +16,6 @@ urlpatterns = [
     path("register", views.register, name="register"),
 
     # api
-    # path("like/<int:p_id>", views.like, name="like"),
+    path("like/<str:p_id>", views.like, name="like"),
     path("edit/<str:p_id>", views.edit, name="edit"),
 ]
