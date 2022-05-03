@@ -92,24 +92,6 @@ def register(request):
         return render(request, "network/register.html")
 
 
-# @csrf_exempt
-# def like(request, p_id):
-#     if request.method == "GET":
-#         return HttpResponseRedirect(reverse("index"))
-#
-#     if request.method == "POST":
-#         data = json.loads(request.body)
-#         post_id = data.get('post')
-#         user_id = data.get('user')
-#         like_filter = Like.objects.filter(post=post_id, user=user_id)
-#         if like_filter is not None:
-#             like_filter.delete()
-#             print('deleted')
-#         else:
-#             Like.objects.create(post=post_id, user=user_id)
-#             print('added')
-#         return HttpResponse(status=204)
-
 @login_required(login_url=login_view)
 def profile(request, u_name):
     profile_u = User.objects.get(username=u_name)
@@ -149,3 +131,34 @@ def following(request):
         'user': user,
         'page_obj': page_obj
     })
+
+
+@csrf_exempt
+@login_required(login_url=login_view)
+def edit(request,p_id):
+    post = Post.objects.get(id=p_id)
+    if request.method == "PUT":
+        data = json.loads(request.body)
+        if data.get("post") is not None and post.post != data.get("post"):
+            post.post = data["post"]
+        post.save()
+        return HttpResponse(status=204)
+
+
+# @csrf_exempt
+# def like(request, p_id):
+#     if request.method == "GET":
+#         return HttpResponseRedirect(reverse("index"))
+#
+#     if request.method == "POST":
+#         data = json.loads(request.body)
+#         post_id = data.get('post')
+#         user_id = data.get('user')
+#         like_filter = Like.objects.filter(post=post_id, user=user_id)
+#         if like_filter is not None:
+#             like_filter.delete()
+#             print('deleted')
+#         else:
+#             Like.objects.create(post=post_id, user=user_id)
+#             print('added')
+#         return HttpResponse(status=204)
