@@ -55,11 +55,18 @@
             </div>
             {# Like Button #}
             <div>
-                <input type="button" data-user="{{ post.user.id }}" onclick="like({{ post.id }})" class="mb-1 float-left" id="like_{{ post.id }}"
+                {% if user in likes.user %}
+                    <input type="button" data-user="{{ post.user.id }}" onclick="like({{ post.id }})" class="mb-1 float-left" id="like_{{ post.id }}"
+                       value="❤"
+                       style="font-size: 24px; width:fit-content; border: none; background-color: transparent"/>
+                {% else %}
+                    <input type="button" data-user="{{ post.user.id }}" onclick="like({{ post.id }})" class="mb-1 float-left" id="like_{{ post.id }}"
                        value="🤍"
                        style="font-size: 24px; width:fit-content; border: none; background-color: transparent"/>
-                <div class="mb-1 text-muted float-right" id="like_count_{{ post.id }}" style="margin-top: 15px">{{ post.like_count }}
-                    Likes
+                {% endif %}
+
+                <div class="mb-1 text-muted float-right" id="like_count_{{ post.id }}" style="margin-top: 15px">
+                    {{ post.like_count }} Likes
                 </div>
             </div>
         </div>

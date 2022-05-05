@@ -36,21 +36,9 @@ class Follower(models.Model):
         return f"{self.follower} : {self.following}"
 
 
-class Comment(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="comment", default=None)
-    post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name="comment", default=None)
-    comment = models.CharField(max_length=255)
-
-    def __str__(self):
-        return f"{self.user} || {self.post} || {self.comment}"
-
-
 class Like(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="like", default=None)
     post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name="like", default=None)
-
-    class Meta:
-        unique_together = (('post', 'user'),)
 
     def __str__(self):
         return f"{self.user} || {self.post}"

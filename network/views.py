@@ -16,7 +16,7 @@ from .models import *
 def index(request):
     user = request.user
     posts = Post.objects.order_by('-time_stamp')
-    likes = Like.objects.filter().values()
+    likes = Like.objects.all()
     form = PostForm()
     paginator = Paginator(posts, 10)
     page_number = request.GET.get('page')
@@ -151,18 +151,20 @@ def edit(request, p_id):
 @login_required(login_url=login_view)
 def like(request, p_id):
     post = Post.objects.get(id=p_id)
-
-    if request.method == "GET":
-        return JsonResponse(post.serialize())
-
-    if request.method == "POST":
-        data = json.loads(request.body)
-        user = request.user
-        if data.get('add'):
-            Like.objects.create(post=post, user=user)
-            post.like_count = Like.objects.filter(post=post).count()
-        else:
-            Like.objects.filter(post=post, user=user).first().delete()
-            post.like_count = Like.objects.filter(post=post).count()
-        post.save()
-        return HttpResponse(status=204)
+    user = request.user
+    liked = Like.objects.filter(user=user, post=post).first()
+    btn_val = ''
+    if liked:
+        liked = Like.objects.get(id=liked.id)
+        liked.delete()
+        post.like_count = Like.objects.filter(post=post).count()
+        btn_val = '🤍'
+        print('deleted')
+    else:
+        Like.objects.create(post=post, user=user)
+        post.like_count = Like.objects.filter(post=post).count()
+        btn_val = '❤'
+        print('added')
+    post.save()
+    likes = Like.objects.filter(post=post).count()
+    return JsonResponse({"likes": likes, "btn_val": btn_val})
