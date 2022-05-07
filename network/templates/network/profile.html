@@ -10,13 +10,18 @@
         <div class="mt-5 text-center">
             <h4 class="mb-0">{{ profile_u.username.capitalize }}</h4>
             {% if user.id != profile_u.id %}
-                <form action="{% url 'profile' profile_u.username %}" method="post">
-                    {% csrf_token %}
+            <form action="{% url 'profile' profile_u.username %}" method="post">
+                {% csrf_token %}
+                {% if status == 'follow' %}
                     <input type="submit" class="btn btn-outline-primary btn-sm follow" style="margin-top: 10px;"
                            value="Follow"/>
-                </form>
+                    {% elif status == 'unfollow' %}
+                    <input type="submit" class="btn btn-outline-primary btn-sm follow" style="margin-top: 10px;"
+                           value="Unfollow"/>
+                    {% endif %}
+                    </form>
 
-            {% endif %}
+                {% endif %}
             <div class="d-flex justify-content-between align-items-center mt-4 px-4" style="margin-bottom: 15px">
                 <div class="stats" style="margin-left: -15px">
                     <h6 class="mb-0">Followers</h6> <span>{{ followers }}</span>
@@ -72,15 +77,22 @@
                 {% endif %}
             </div>
             <div>
-                <input type="button" data-id="{{ post.id }}" class="mb-1 card-text float-left" id="like_{{ post.id }}"
+                {% if user in likes.user %}
+                    <input type="button" data-user="{{ post.user.id }}" onclick="like({{ post.id }})" class="mb-1 float-left" id="like_{{ post.id }}"
+                       value="❤"
+                       style="font-size: 24px; width:fit-content; border: none; background-color: transparent"/>
+                {% else %}
+                    <input type="button" data-user="{{ post.user.id }}" onclick="like({{ post.id }})" class="mb-1 float-left" id="like_{{ post.id }}"
                        value="🤍"
                        style="font-size: 24px; width:fit-content; border: none; background-color: transparent"/>
-                <div class="mb-1 text-muted float-right" id="like_count" style="margin-top: 15px">{{ post.like_count }}
-                    Likes
+                {% endif %}
+                <div class="mb-1 text-muted float-right" id="like_count_{{ post.id }}" style="margin-top: 15px">
+                    {{ post.like_count }} Likes
                 </div>
             </div>
         </div>
     {% endfor %}
+
     <div class="pagination container text-center">
     <span class="step-links text-center container" style="margin-bottom: 20px; margin-top: 20px;">
         {% if page_obj.has_previous %}

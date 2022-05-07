@@ -98,9 +98,20 @@ def register(request):
 def profile(request, u_name):
     profile_u = User.objects.get(username=u_name)
     user = request.user
+    status = ''
+    follower_model = Follower.objects.filter(follower=user, following=profile_u)
     if request.method == 'POST':
-        Follower.objects.create(follower=user, following=profile_u)
+        if follower_model.exists():
+            follower_model.delete()
+            return HttpResponseRedirect(reverse("profile",args=[u_name]))
+        else:
+            Follower.objects.create(follower=user, following=profile_u)
+            return HttpResponseRedirect(reverse("profile",args=[u_name]))
 
+    if follower_model.exists():
+        status = 'unfollow'
+    else:
+        status = 'follow'
     posts = Post.objects.filter(user=profile_u).order_by('-time_stamp')
     followers = Follower.objects.filter(following=profile_u).count()
     followings = Follower.objects.filter(follower=profile_u).count()
@@ -114,7 +125,8 @@ def profile(request, u_name):
         'followers': followers,
         'followings': followings,
         'posts_count': posts.count(),
-        'page_obj': page_obj
+        'page_obj': page_obj,
+        'status': status
     })
 
 
